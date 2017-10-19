@@ -62,17 +62,35 @@ public class controller : MonoBehaviour {
             ClickPosition = Input.mousePosition;
             if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
             {
-                this.transform.RotateAround(Pivot.transform.position, Vector3.up, angle * (delta.x > 0 ? 1 : -1));
+                //this.transform.RotateAround(Pivot.transform.position, Vector3.up, angle * (delta.x > 0 ? 1 : -1));
+                RotateAround(this.transform, Pivot.transform.position, Vector3.up, angle * (delta.x > 0 ? 1 : -1));
             }
             else if (Mathf.Abs(delta.y) > Mathf.Abs(delta.x))
             {
                 // Vector3 yaxis = Vector3.Cross(this.transform.right, Vector3.up);
-                this.transform.RotateAround(Pivot.transform.position, this.transform.right, angle * (delta.y > 0 ? 1 : -1));
+                //this.transform.RotateAround(Pivot.transform.position, this.transform.right, angle * (delta.y > 0 ? 1 : -1));
+                RotateAround(this.transform, Pivot.transform.position, this.transform.right, angle * (delta.y > 0 ? 1 : -1));
             }
         }
         else if (Input.mouseScrollDelta.magnitude != 0)
         {
             this.transform.position += (this.transform.forward * Input.mouseScrollDelta.x + this.transform.forward * Input.mouseScrollDelta.y) * 0.5f;
         }
-	}    
+	}
+    void RotateAround(Transform t, Vector3 pos, Vector3 axis, int angle)
+    {
+        //t.RotateAround(pos, axis, angle);        
+        // 修改位置
+        var mypos = t.position;
+        var q = Quaternion.AngleAxis(angle, axis);
+        var va = mypos - pos;
+        var vb = q * va;    // 旋转向量，最后“点+向量”等于最终点的位置
+        t.position = pos + vb;
+
+        // 修改朝向（反向转angle即可）
+        // axis是世界坐标系，需要转到自身坐标系
+        axis = Quaternion.Inverse(t.transform.rotation) * axis;
+        // axis = t.transform.InverseTransformDirection(axis);
+        t.Rotate(axis, angle, Space.Self);
+    }
 }
